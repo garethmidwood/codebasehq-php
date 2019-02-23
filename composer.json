@@ -1,0 +1,17 @@
+{
+    "name": "garethmidwood/codebasehq-php",
+    "description": "A PHP library for the CodebaseHQ API",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Gareth Midwood",
+            "email": "gareth.midwood@creode.co.uk"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "GarethMidwood\\": "GarethMidwood"
+        }
+    }
+}
