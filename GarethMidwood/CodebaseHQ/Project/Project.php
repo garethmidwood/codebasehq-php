@@ -15,9 +15,21 @@ class Project
     private $openTicketCount;
     private $closedTicketCount;
     /**
+     * @var Ticket\Category\Collection
+     */
+    private $ticketCategoryCollection;
+    /**
+     * @var Ticket\Priority\Collection
+     */
+    private $ticketPriorityCollection;
+    /**
      * @var Ticket\Status\Collection
      */
     private $ticketStatusCollection;
+    /**
+     * @var Ticket\Type\Collection
+     */
+    private $ticketTypeCollection;
     /**
      * @var Ticket\Collection
      */
@@ -26,8 +38,6 @@ class Project
      * @var TimeSession\Collection
      */
     private $timeSessionCollection;
-
-
 
     /**
      * Constructor
@@ -59,14 +69,18 @@ class Project
 
         $this->ticketCollection = new Ticket\Collection();
         $this->timeSessionCollection = new TimeSession\Collection();
+        $this->ticketCategoryCollection = new Ticket\Category\Collection();
+        $this->ticketPriorityCollection = new Ticket\Priority\Collection();
         $this->ticketStatusCollection = new Ticket\Status\Collection();
+        $this->ticketTypeCollection = new Ticket\Type\Collection();
     }
 
     /**
      * Gets project id
      * @return int
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -74,7 +88,8 @@ class Project
      * Gets project name
      * @return string
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -82,7 +97,8 @@ class Project
      * Gets project status
      * @return string
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -90,7 +106,8 @@ class Project
      * Gets project permalink
      * @return string
      */
-    public function getPermalink() {
+    public function getPermalink()
+    {
         return $this->permalink;
     }
 
@@ -98,7 +115,8 @@ class Project
      * Gets total ticket count
      * @return int
      */
-    public function getTotalTicketCount() {
+    public function getTotalTicketCount()
+    {
         return $this->totalTicketCount;
     }
 
@@ -106,7 +124,8 @@ class Project
      * Gets open ticket count
      * @return int
      */
-    public function getOpenTicketCount() {
+    public function getOpenTicketCount()
+    {
         return $this->openTicketCount;
     }
 
@@ -114,7 +133,8 @@ class Project
      * Gets total ticket count
      * @return int
      */
-    public function getClosedTicketCount() {
+    public function getClosedTicketCount()
+    {
         return $this->closedTicketCount;
     }
 
@@ -122,7 +142,8 @@ class Project
      * Returns ticket collection
      * @return Ticket\Collection
      */
-    public function getTickets() {
+    public function getTickets()
+    {
         return $this->ticketCollection;
     }
 
@@ -131,7 +152,8 @@ class Project
      * @param Ticket\Ticket $ticket
      * @return Project
      */
-    public function addTicket(Ticket\Ticket $ticket) {
+    public function addTicket(Ticket\Ticket $ticket)
+    {
         $this->ticketCollection->addTicket($ticket);
 
         return $this;
@@ -141,7 +163,8 @@ class Project
      * Returns time session collection
      * @return TimeSession\Collection
      */
-    public function getTimeSessions() {
+    public function getTimeSessions()
+    {
         return $this->timeSessionCollection;
     }
 
@@ -150,8 +173,71 @@ class Project
      * @param TimeSession\TimeSession $timeSession
      * @return Project
      */
-    public function addTimeSession(TimeSession\TimeSession $timeSession) {
+    public function addTimeSession(TimeSession\TimeSession $timeSession)
+    {
         $this->timeSessionCollection->addTimeSession($timeSession);
+
+        return $this;
+    }
+
+    /**
+     * Returns ticket category collection
+     * @return Ticket\Category\Collection
+     */
+    public function getTicketCategories()
+    {
+        return $this->ticketCategoryCollection;
+    }
+
+    /**
+     * Returns ticket category by id
+     * @param int $id 
+     * @return null|Ticket\Category\Category
+     */
+    public function getTicketCategoryById(int $id)
+    {
+        return $this->ticketCategoryCollection->searchById($id);
+    }
+
+    /**
+     * Adds a ticket category to this project
+     * @param Ticket\Category\Category $ticketCategory
+     * @return Project
+     */
+    public function addTicketCategory(Ticket\Category\Category $ticketCategory)
+    {
+        $this->ticketCategoryCollection->addTicketCategory($ticketCategory);
+
+        return $this;
+    }
+
+    /**
+     * Returns ticket priority collection
+     * @return Ticket\Priority\Collection
+     */
+    public function getTicketPriorities()
+    {
+        return $this->ticketPriorityCollection;
+    }
+
+    /**
+     * Returns ticket priority by id
+     * @param int $id 
+     * @return null|Ticket\Priority\Priority
+     */
+    public function getTicketPriorityById(int $id)
+    {
+        return $this->ticketPriorityCollection->searchById($id);
+    }
+
+    /**
+     * Adds a ticket priority to this project
+     * @param Ticket\Priority\Priority $ticketStatus
+     * @return Project
+     */
+    public function addTicketPriority(Ticket\Priority\Priority $ticketPriority)
+    {
+        $this->ticketPriorityCollection->addTicketPriority($ticketPriority);
 
         return $this;
     }
@@ -160,8 +246,19 @@ class Project
      * Returns ticket status collection
      * @return Ticket\Status\Collection
      */
-    public function getTicketStatuses() {
+    public function getTicketStatuses()
+    {
         return $this->ticketStatusCollection;
+    }
+
+    /**
+     * Returns ticket status by id
+     * @param int $id 
+     * @return null|Ticket\Status\Status
+     */
+    public function getTicketStatusById(int $id)
+    {
+        return $this->ticketStatusCollection->searchById($id);
     }
 
     /**
@@ -169,8 +266,40 @@ class Project
      * @param Ticket\Status\Status $ticketStatus
      * @return Project
      */
-    public function addTicketStatus(Ticket\Status\Status $ticketStatus) {
+    public function addTicketStatus(Ticket\Status\Status $ticketStatus)
+    {
         $this->ticketStatusCollection->addTicketStatus($ticketStatus);
+
+        return $this;
+    }
+
+    /**
+     * Returns ticket type collection
+     * @return Ticket\Type\Collection
+     */
+    public function getTicketTypes()
+    {
+        return $this->ticketTypeCollection;
+    }
+
+    /**
+     * Returns ticket type by id
+     * @param int $id 
+     * @return null|Ticket\Type\Type
+     */
+    public function getTicketTypeById(int $id)
+    {
+        return $this->ticketTypeCollection->searchById($id);
+    }
+
+    /**
+     * Adds a ticket type to this project
+     * @param Ticket\Type\Type $ticketStatus
+     * @return Project
+     */
+    public function addTicketType(Ticket\Type\Type $ticketType)
+    {
+        $this->ticketTypeCollection->addTicketType($ticketType);
 
         return $this;
     }

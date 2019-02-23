@@ -41,6 +41,78 @@ class CodebaseHQAccount extends CodebaseHQConnector
         return $this->projectCollection;
     }
 
+    /**
+     * Populates categories for a project
+     * @param Project\Project &$project 
+     * @return bool
+     */
+    public function categories(Project\Project &$project) : bool
+    {
+        $url = '/' . $project->getPermalink() . '/tickets/categories';
+
+        $categories = $this->get($url);
+
+        if (!isset($categories['ticketing-category'])) {
+            return false;
+        }
+
+        foreach($categories['ticketing-category'] as $category) {
+            if (!is_array($category) || !isset($category['id'])) {
+                continue;
+            }
+
+            $project->addTicketCategory(
+                new Ticket\Category\Category(
+                    (int)$category['id'],
+                    $category['name']
+                )
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Populates priorities for a project
+     * @param Project\Project &$project 
+     * @return bool
+     */
+    public function priorities(Project\Project &$project) : bool
+    {
+        $url = '/' . $project->getPermalink() . '/tickets/priorities';
+
+        $priorities = $this->get($url);
+
+        if (!isset($priorities['ticketing-priority'])) {
+            return false;
+        }
+
+        foreach($priorities['ticketing-priority'] as $priority) {
+            if (!is_array($priority) || !isset($priority['id'])) {
+                continue;
+            }
+
+            $project->addTicketPriority(
+                new Ticket\Priority\Priority(
+                    (int)$priority['id'],
+                    (isset($priority['name']) && is_string($priority['name']))
+                        ? $priority['name']
+                        : null,
+                    (isset($priority['colour']) && is_string($priority['colour']))
+                        ? $priority['colour']
+                        : null,
+                    (isset($priority['default']) && is_string($priority['default']))
+                        ? (bool)$priority['default']
+                        : null,
+                    (isset($priority['position']) && is_string($priority['position']))
+                        ? (int)$priority['position']
+                        : null
+                )
+            );
+        }
+
+        return true;
+    }
 
     /**
      * Populates statuses for a project
@@ -84,6 +156,38 @@ class CodebaseHQAccount extends CodebaseHQConnector
         return true;
     }
 
+    /**
+     * Populates types for a project
+     * @param Project\Project &$project 
+     * @return bool
+     */
+    public function types(Project\Project &$project) : bool
+    {
+        $url = '/' . $project->getPermalink() . '/tickets/types';
+
+        $types = $this->get($url);
+
+        if (!isset($types['ticketing-type'])) {
+            return false;
+        }
+
+        foreach($types['ticketing-type'] as $type) {
+            if (!is_array($type) || !isset($type['id'])) {
+                continue;
+            }
+
+            $project->addTicketType(
+                new Ticket\Type\Type(
+                    (int)$type['id'],
+                    (isset($type['name']) && is_string($type['name']))
+                        ? $type['name']
+                        : null
+                )
+            );
+        }
+
+        return true;
+    }
 
     /**
      * Populates tickets on the given project
@@ -120,57 +224,13 @@ class CodebaseHQAccount extends CodebaseHQConnector
                     $ticket['reporter']
                 );
 
-            $category = (!isset($ticket['category']) || is_array($ticket['category']))
-                ? null
-                : new Ticket\Category\Category(
-                    (int)$ticket['category-id'],
-                    $ticket['category']
-                );
+            $category = $project->getTicketCategoryById((int)$ticket['category-id']);
 
-            $priority = (!isset($ticket['priority']) || is_array($ticket['priority-id']))
-                ? null
-                : new Ticket\Priority\Priority(
-                    (int)$ticket['priority-id'],
-                    (isset($ticket['priority']['name']) && is_string($ticket['priority']['name']))
-                        ? $ticket['priority']['name']
-                        : null,
-                    (isset($ticket['priority']['colour']) && is_string($ticket['priority']['colour']))
-                        ? $ticket['priority']['colour']
-                        : null,
-                    (isset($ticket['priority']['default']) && is_string($ticket['priority']['default']))
-                        ? (bool)$ticket['priority']['default']
-                        : null,
-                    (isset($ticket['priority']['position']) && is_string($ticket['priority']['position']))
-                        ? (int)$ticket['priority']['position']
-                        : null
-                );
+            $priority = $project->getTicketPriorityById((int)$ticket['priority-id']);
 
-            $status = (!isset($ticket['status']) || is_array($ticket['status-id']))
-                ? null
-                : new Ticket\Status\Status(
-                    (int)$ticket['status-id'],
-                    (isset($ticket['status']['name']) && is_string($ticket['status']['name']))
-                        ? $ticket['status']['name']
-                        : null,
-                    (isset($ticket['status']['colour']) && is_string($ticket['status']['colour']))
-                        ? $ticket['status']['colour']
-                        : null,
-                    (isset($ticket['status']['treat-as-closed']) && is_string($ticket['status']['treat-as-closed']))
-                        ? filter_var($ticket['status']['treat-as-closed'], FILTER_VALIDATE_BOOLEAN)
-                        : null,
-                    (isset($ticket['status']['order']) && is_string($ticket['status']['order']))
-                        ? (int)$ticket['status']['order']
-                        : null
-                );
+            $status = $project->getTicketStatusById((int)$ticket['status-id']);
 
-            $type = (!isset($ticket['type-id']) || is_array($ticket['type-id']))
-                ? null
-                : new Ticket\Type\Type(
-                    (int)$ticket['type-id'],
-                    (isset($ticket['type']['name']) && is_string($ticket['type']['name']))
-                        ? $ticket['type']['name']
-                        : null
-                );
+            $type = $project->getTicketTypeById((int)$ticket['type-id']);
 
             $estimatedTime = (isset($ticket['estimated-time']) && is_string($ticket['estimated-time']))
                 ? $ticket['estimated-time']
@@ -197,7 +257,6 @@ class CodebaseHQAccount extends CodebaseHQConnector
 
         return true;
     }
-
 
     /**
      * Populates time sessions on the given project

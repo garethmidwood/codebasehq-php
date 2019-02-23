@@ -11,7 +11,7 @@ class Collection extends BaseCollection
      * @param Priority $priority 
      * @return void
      */
-    public function addPriority(Priority $priority)
+    public function addTicketPriority(Priority $priority)
     {
         $this->addItem($priority->getId(), $priority);
     }

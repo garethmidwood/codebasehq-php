@@ -11,7 +11,7 @@ class Collection extends BaseCollection
      * @param Category $category 
      * @return void
      */
-    public function addCategory(Category $category)
+    public function addTicketCategory(Category $category)
     {
         $this->addItem($category->getId(), $category);
     }

@@ -22,7 +22,7 @@ $activeProjects = $projects->getActive();
 
 echo 'retrieved ' . $activeProjects->getCount() . ' active projects' . PHP_EOL;
 
-$searchedProjects = $activeProjects->searchByName('Creode', false);
+$searchedProjects = $activeProjects->searchByName('Creode', true);
 
 echo 'retrieved ' . $searchedProjects->getCount() . ' active searched projects' . PHP_EOL;
 
@@ -30,9 +30,21 @@ echo '---' . PHP_EOL;
 
 
 foreach($searchedProjects as $project) {
+    echo 'Loading categories for "' . $project->getName() . '"' . PHP_EOL; 
+
+    $codebaseHQ->categories($project);
+
+    echo 'Loading priorities for "' . $project->getName() . '"' . PHP_EOL; 
+
+    $codebaseHQ->priorities($project);
+
     echo 'Loading statuses for "' . $project->getName() . '"' . PHP_EOL; 
 
     $codebaseHQ->statuses($project);
+
+    echo 'Loading types for "' . $project->getName() . '"' . PHP_EOL; 
+
+    $codebaseHQ->types($project);
 }
 
 
