@@ -10,12 +10,12 @@ class User
     /**
      * Constructor
      * @param int $id 
-     * @param string $username 
+     * @param null|string $username 
      * @return void
      */
     public function __construct(
         int $id,
-        string $username
+        string $username = null
     ) {
         $this->id = $id;
         $this->username = $username;
@@ -31,7 +31,7 @@ class User
 
     /**
      * Gets project name
-     * @return string
+     * @return null|string
      */
     public function getUsername() {
         return $this->username;

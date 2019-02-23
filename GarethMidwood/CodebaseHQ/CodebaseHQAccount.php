@@ -4,6 +4,7 @@ namespace GarethMidwood\CodebaseHQ;
 
 use GarethMidwood\CodebaseHQ\Project;
 use GarethMidwood\CodebaseHQ\Ticket;
+use GarethMidwood\CodebaseHQ\TimeSession\Period;
 use GarethMidwood\CodebaseHQ\User;
 
 class CodebaseHQAccount extends CodebaseHQConnector
@@ -42,15 +43,55 @@ class CodebaseHQAccount extends CodebaseHQConnector
 
 
     /**
-     * Returns a collection of all tickets in the project
+     * Populates statuses for a project
+     * @param Project\Project &$project 
+     * @return bool
+     */
+    public function statuses(Project\Project &$project) : bool
+    {
+        $url = '/' . $project->getPermalink() . '/tickets/statuses';
+
+        $statuses = $this->get($url);
+
+        if (!isset($statuses['ticketing-status'])) {
+            return false;
+        }
+
+        foreach($statuses['ticketing-status'] as $status) {
+            if (!is_array($status) || !isset($status['id'])) {
+                continue;
+            }
+
+            $project->addTicketStatus(
+                new Ticket\Status\Status(
+                    (int)$status['id'],
+                    (isset($status['name']) && is_string($status['name']))
+                        ? $status['name']
+                        : null,
+                    (isset($status['colour']) && is_string($status['colour']))
+                        ? $status['colour']
+                        : null,
+                    (isset($status['treat-as-closed']) && is_string($status['treat-as-closed']))
+                        ? filter_var($status['treat-as-closed'], FILTER_VALIDATE_BOOLEAN)
+                        : null,
+                    (isset($status['order']) && is_string($status['order']))
+                        ? (int)$status['order']
+                        : null
+                )
+            );
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Populates tickets on the given project
      * @param Project\Project &$project 
      * @param int $pageNo
      * @return bool
      */
-    public function tickets(
-        Project\Project &$project,
-        int $pageNo = 1
-    ) : bool
+    public function tickets(Project\Project &$project, int $pageNo = 1) : bool
     {
         $url = '/' . $project->getPermalink() . '/tickets?page=' . $pageNo;
 
@@ -81,14 +122,14 @@ class CodebaseHQAccount extends CodebaseHQConnector
 
             $category = (!isset($ticket['category']) || is_array($ticket['category']))
                 ? null
-                : new Ticket\Category(
+                : new Ticket\Category\Category(
                     (int)$ticket['category-id'],
                     $ticket['category']
                 );
 
             $priority = (!isset($ticket['priority']) || is_array($ticket['priority-id']))
                 ? null
-                : new Ticket\Priority(
+                : new Ticket\Priority\Priority(
                     (int)$ticket['priority-id'],
                     (isset($ticket['priority']['name']) && is_string($ticket['priority']['name']))
                         ? $ticket['priority']['name']
@@ -106,7 +147,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
 
             $status = (!isset($ticket['status']) || is_array($ticket['status-id']))
                 ? null
-                : new Ticket\Status(
+                : new Ticket\Status\Status(
                     (int)$ticket['status-id'],
                     (isset($ticket['status']['name']) && is_string($ticket['status']['name']))
                         ? $ticket['status']['name']
@@ -124,7 +165,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
 
             $type = (!isset($ticket['type-id']) || is_array($ticket['type-id']))
                 ? null
-                : new Ticket\Type(
+                : new Ticket\Type\Type(
                     (int)$ticket['type-id'],
                     (isset($ticket['type']['name']) && is_string($ticket['type']['name']))
                         ? $ticket['type']['name']
@@ -150,6 +191,60 @@ class CodebaseHQAccount extends CodebaseHQConnector
                     new \DateTime($ticket['updated-at']),
                     new \DateTime($ticket['created-at']),
                     (int)$ticket['total-time-spent']
+                )
+            );
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Populates time sessions on the given project
+     * @param Project\Project &$project 
+     * @param Period\Period $period 
+     * @return bool
+     */
+    public function times(Project\Project &$project, Period\Period $period) : bool
+    {
+        $url = '/' . $project->getPermalink() . '/time_sessions' . $period->getPeriod();
+
+        echo $url . PHP_EOL;
+
+        $timeSessions = $this->get($url);
+
+        if (!isset($timeSessions['time-session'])) {
+            return false;
+        }
+
+        echo 'contains ' . count($timeSessions['time-session']) . ' items' . PHP_EOL;
+
+        foreach($timeSessions['time-session'] as $timeSession) {
+            if (!is_array($timeSession) || !isset($timeSession['id'])) {
+                continue;
+            }
+
+            $user = (!isset($timeSession['user-id']) || is_array($timeSession['user-id']))
+                ? null 
+                : new User\User(
+                    (int)$timeSession['user-id'],
+                    null
+                );
+
+            $ticketId = (!isset($timeSession['ticket-id']) || is_array($timeSession['ticket-id']))
+                ? null 
+                : $timeSession['ticket-id'];
+
+            $project->addTimeSession(
+                new TimeSession\TimeSession(
+                    (int)$timeSession['id'],
+                    $timeSession['summary'],
+                    (int)$timeSession['minutes'],
+                    new \DateTime($timeSession['session-date']),
+                    $user,
+                    $ticketId,
+                    new \DateTime($timeSession['updated-at']),
+                    new \DateTime($timeSession['created-at'])
                 )
             );
         }

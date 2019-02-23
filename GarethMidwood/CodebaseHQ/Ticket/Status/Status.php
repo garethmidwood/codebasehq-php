@@ -1,6 +1,6 @@
 <?php
 
-namespace GarethMidwood\CodebaseHQ\Ticket;
+namespace GarethMidwood\CodebaseHQ\Ticket\Status;
 
 class Status
 {

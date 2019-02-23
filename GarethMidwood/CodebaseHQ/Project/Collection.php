@@ -2,10 +2,10 @@
 
 namespace GarethMidwood\CodebaseHQ\Project;
 
-class Collection implements \IteratorAggregate
-{
-    private $projects = [];
+use GarethMidwood\CodebaseHQ\BaseCollection;
 
+class Collection extends BaseCollection
+{
     /**
      * Adds a project to the collection
      * @param Project $project 
@@ -13,16 +13,7 @@ class Collection implements \IteratorAggregate
      */
     public function addProject(Project $project)
     {
-        $this->projects[] = $project;
-    }
-
-    /**
-     * Returns the number of projects in the collection
-     * @return int
-     */
-    public function getCount() : int
-    {
-        return count($this->projects);
+        $this->addItem($project->getId(), $project);
     }
 
     /**
@@ -33,7 +24,7 @@ class Collection implements \IteratorAggregate
     {
         $activeCollection = new Collection();
 
-        foreach($this->projects as $project) {
+        foreach($this as $project) {
             if ($project->getStatus() == 'active') {
                 $activeCollection->addProject($project);
             }
@@ -53,7 +44,7 @@ class Collection implements \IteratorAggregate
 
         $lowerCaseSearchTerm = strtolower($searchTerm);
 
-        foreach($this->projects as $project) {
+        foreach($this as $project) {
             if (
                 (!$exactMatchOnly && strpos(strtolower($project->getName()), $lowerCaseSearchTerm) !== false) ||
                 ($exactMatchOnly && strtolower($project->getName()) == $lowerCaseSearchTerm)
@@ -63,13 +54,5 @@ class Collection implements \IteratorAggregate
         }
 
         return $searchResultCollection;
-    }
-
-    /**
-     * Returns array iterator
-     * @return \ArrayIterator
-     */
-    public function getIterator() {
-        return new \ArrayIterator($this->projects);
     }
 }

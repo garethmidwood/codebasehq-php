@@ -22,11 +22,20 @@ $activeProjects = $projects->getActive();
 
 echo 'retrieved ' . $activeProjects->getCount() . ' active projects' . PHP_EOL;
 
-$searchedProjects = $activeProjects->searchByName('Creode', true);
+$searchedProjects = $activeProjects->searchByName('Creode', false);
 
 echo 'retrieved ' . $searchedProjects->getCount() . ' active searched projects' . PHP_EOL;
 
 echo '---' . PHP_EOL;
+
+
+foreach($searchedProjects as $project) {
+    echo 'Loading statuses for "' . $project->getName() . '"' . PHP_EOL; 
+
+    $codebaseHQ->statuses($project);
+}
+
+
 
 
 // populate the tickets for each project
@@ -34,12 +43,18 @@ foreach($searchedProjects as $project) {
     $pageNo = 1;
     $moreResultsToRetrieve = true;
 
+    echo 'Loading tickets for "' . $project->getName() . '" ';
+
     while ($moreResultsToRetrieve) {
+        echo '.';
         $moreResultsToRetrieve = $codebaseHQ->tickets($project, $pageNo);
         $pageNo++;
     }
+
+    echo ' done' . PHP_EOL;
 }
 
+echo '---' . PHP_EOL;
 
 foreach($searchedProjects as $project) {
     $tickets = $project->getTickets();
@@ -61,3 +76,15 @@ foreach($searchedProjects as $project) {
 
     echo '---' . PHP_EOL;
 }
+
+
+
+// can be All|Day|Week|Month
+$weekPeriod = new GarethMidwood\CodebaseHQ\TimeSession\Period\Week;
+
+foreach($searchedProjects as $project) {
+    $codebaseHQ->times($project, $weekPeriod);
+}
+
+
+

@@ -2,9 +2,12 @@
 
 namespace GarethMidwood\CodebaseHQ\Ticket;
 
-class Collection implements \IteratorAggregate
+use GarethMidwood\CodebaseHQ\BaseCollection;
+
+class Collection extends BaseCollection
 {
-    private $tickets = [];
+    const STATUS_CLOSED = true;
+    const STATUS_OPEN = false;
 
     /**
      * Adds a ticket to the collection
@@ -13,16 +16,7 @@ class Collection implements \IteratorAggregate
      */
     public function addTicket(Ticket $ticket)
     {
-        $this->tickets[] = $ticket;
-    }
-
-    /**
-     * Returns the number of tickets in the collection
-     * @return int
-     */
-    public function getCount() : int
-    {
-        return count($this->tickets);
+        $this->addItem($ticket->getId(), $ticket);
     }
 
     /**
@@ -31,15 +25,7 @@ class Collection implements \IteratorAggregate
      */
     public function getOpen() : Collection
     {
-        $openCollection = new Collection();
-
-        foreach($this->tickets as $ticket) {
-            if (!$ticket->getStatus()->isClosed()) {
-                $openCollection->addticket($ticket);
-            }
-        }
-
-        return $openCollection;
+        return $this->getByStatus(self::STATUS_OPEN);
     }
 
     /**
@@ -48,22 +34,24 @@ class Collection implements \IteratorAggregate
      */
     public function getClosed() : Collection
     {
-        $closedCollection = new Collection();
-
-        foreach($this->tickets as $ticket) {
-            if ($ticket->getStatus()->isClosed()) {
-                $closedCollection->addticket($ticket);
-            }
-        }
-
-        return $closedCollection;
+        return $this->getByStatus(self::STATUS_CLOSED);
     }
 
     /**
-     * Returns array iterator
-     * @return \ArrayIterator
+     * Returns a new collection of tickets that are open/closed 
+     * @param bool $returnClosed 
+     * @return type
      */
-    public function getIterator() {
-        return new \ArrayIterator($this->tickets);
+    private function getByStatus(bool $returnClosed) : Collection
+    {
+        $collection = new Collection();
+
+        foreach($this as $ticket) {
+            if ($ticket->getStatus()->isClosed() == $returnClosed) {
+                $collection->addticket($ticket);
+            }
+        }
+
+        return $collection;
     }
 }

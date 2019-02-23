@@ -27,10 +27,10 @@ class Ticket
      * @param string $summary 
      * @param User\User $reporter 
      * @param User\User $assignee 
-     * @param Category $category 
-     * @param Priority $priority 
-     * @param Status $status 
-     * @param Type $type 
+     * @param Category\Category $category 
+     * @param Priority\Priority $priority 
+     * @param Status\Status $status 
+     * @param Type\Type $type 
      * @param int|null $estimatedTime 
      * @param \DateTime $updatedAt 
      * @param \DateTime $createdAt 
@@ -43,10 +43,10 @@ class Ticket
         string $summary,
         User\User $reporter = null,
         User\User $assignee = null,
-        Category $category = null,
-        Priority $priority = null,
-        Status $status = null,
-        Type $type = null,
+        Category\Category $category = null,
+        Priority\Priority $priority = null,
+        Status\Status $status = null,
+        Type\Type $type = null,
         int $estimatedTime = null,
         \DateTime $updatedAt,
         \DateTime $createdAt,
@@ -109,7 +109,7 @@ class Ticket
 
     /**
      * Gets Ticket category
-     * @return null|Category
+     * @return null|Category\Category
      */
     public function getCategory() {
         return $this->category;
@@ -117,7 +117,7 @@ class Ticket
 
     /**
      * Gets Ticket priority
-     * @return null|Priority
+     * @return null|Priority\Priority
      */
     public function getPriority() {
         return $this->priority;
@@ -125,7 +125,7 @@ class Ticket
 
     /**
      * Gets Ticket status
-     * @return null|Status
+     * @return null|Status\Status
      */
     public function getStatus() {
         return $this->status;
@@ -133,7 +133,7 @@ class Ticket
 
     /**
      * Gets Ticket type
-     * @return null|Type
+     * @return null|Type\Type
      */
     public function getType() {
         return $this->type;

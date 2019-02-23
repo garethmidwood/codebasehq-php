@@ -3,6 +3,7 @@
 namespace GarethMidwood\CodebaseHQ\Project;
 
 use GarethMidwood\CodebaseHQ\Ticket;
+use GarethMidwood\CodebaseHQ\TimeSession;
 
 class Project 
 {
@@ -14,9 +15,19 @@ class Project
     private $openTicketCount;
     private $closedTicketCount;
     /**
+     * @var Ticket\Status\Collection
+     */
+    private $ticketStatusCollection;
+    /**
      * @var Ticket\Collection
      */
     private $ticketCollection;
+    /**
+     * @var TimeSession\Collection
+     */
+    private $timeSessionCollection;
+
+
 
     /**
      * Constructor
@@ -47,6 +58,8 @@ class Project
         $this->closedTicketCount = $closedTicketCount;
 
         $this->ticketCollection = new Ticket\Collection();
+        $this->timeSessionCollection = new TimeSession\Collection();
+        $this->ticketStatusCollection = new Ticket\Status\Collection();
     }
 
     /**
@@ -120,6 +133,44 @@ class Project
      */
     public function addTicket(Ticket\Ticket $ticket) {
         $this->ticketCollection->addTicket($ticket);
+
+        return $this;
+    }
+
+    /**
+     * Returns time session collection
+     * @return TimeSession\Collection
+     */
+    public function getTimeSessions() {
+        return $this->timeSessionCollection;
+    }
+
+    /**
+     * Adds a time session to this project
+     * @param TimeSession\TimeSession $timeSession
+     * @return Project
+     */
+    public function addTimeSession(TimeSession\TimeSession $timeSession) {
+        $this->timeSessionCollection->addTimeSession($timeSession);
+
+        return $this;
+    }
+
+    /**
+     * Returns ticket status collection
+     * @return Ticket\Status\Collection
+     */
+    public function getTicketStatuses() {
+        return $this->ticketStatusCollection;
+    }
+
+    /**
+     * Adds a ticket status to this project
+     * @param Ticket\Status\Status $ticketStatus
+     * @return Project
+     */
+    public function addTicketStatus(Ticket\Status\Status $ticketStatus) {
+        $this->ticketStatusCollection->addTicketStatus($ticketStatus);
 
         return $this;
     }
