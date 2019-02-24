@@ -15,6 +15,33 @@ class CodebaseHQAccount extends CodebaseHQConnector
     private $projectCollection;
 
     /**
+     * @var User\Collection
+     */
+    private $userCollection;
+
+    /**
+     * Constructor
+     * @param string $apiUser 
+     * @param string $apiKey 
+     * @param string $apiHostname
+     * @return void
+     */
+    public function __construct(
+        $apiUser,
+        $apiKey,
+        $apiHostname
+    ) {
+        parent::__construct(
+            $apiUser,
+            $apiKey,
+            $apiHostname
+        );
+
+        $this->projectCollection = new Project\Collection();
+        $this->userCollection = new User\Collection();
+    }
+
+    /**
      * Returns a collection of all projects
      * @return Project\Collection
      */
@@ -22,23 +49,83 @@ class CodebaseHQAccount extends CodebaseHQConnector
     {
         $projects = $this->get('/projects');
 
-        $this->projectCollection = new Project\Collection();
+        foreach($projects['project'] as $projectData) {
+            $project = new Project\Project(
+                (int)$projectData['project-id'],
+                $projectData['name'],
+                $projectData['status'],
+                $projectData['permalink'],
+                (int)$projectData['total-tickets'],
+                (int)$projectData['open-tickets'],
+                (int)$projectData['closed-tickets']
+            );
 
-        foreach($projects['project'] as $project) {
-            $this->projectCollection->addProject(
-                new Project\Project(
-                    (int)$project['project-id'],
-                    $project['name'],
-                    $project['status'],
-                    $project['permalink'],
-                    (int)$project['total-tickets'],
-                    (int)$project['open-tickets'],
-                    (int)$project['closed-tickets']
+            $this->categories($project);
+            $this->priorities($project);
+            $this->statuses($project);
+            $this->types($project);
+
+            $this->projectCollection->addProject($project);
+        }
+
+        return $this->projectCollection;
+    }
+
+    /**
+     * Returns a collection of all projects
+     * @param string $permalink
+     * @return Project\Project
+     */
+    public function project(string $permalink) : Project\Project
+    {
+        $projectData = $this->get('/' . $permalink);
+
+        file_put_contents('proj.txt', print_r($projectData, true));
+
+        $project = new Project\Project(
+            (int)$projectData['project-id'],
+            $projectData['name'],
+            $projectData['status'],
+            $projectData['permalink'],
+            (int)$projectData['total-tickets'],
+            (int)$projectData['open-tickets'],
+            (int)$projectData['closed-tickets']
+        );
+
+        $this->categories($project);
+        $this->priorities($project);
+        $this->statuses($project);
+        $this->types($project);
+
+        return $project;
+    }
+
+
+    /**
+     * Returns a collection of all users
+     * @return User\Collection
+     */
+    public function users() : User\Collection
+    {
+        $users = $this->get('/users');
+
+        foreach($users['user'] as $user) {
+
+            $this->userCollection->addUser(
+                new User\User(
+                    (int)$user['id'],
+                    (isset($user['username']) && is_string($user['username'])) ? $user['username'] : null,
+                    (isset($user['company']) && is_string($user['company'])) ? $user['company'] : null,
+                    (isset($user['email-address']) && is_string($user['email-address'])) ? $user['email-address'] : null,
+                    (isset($user['first-name']) && is_string($user['first-name'])) ? $user['first-name'] : null,
+                    (isset($user['last-name']) && is_string($user['last-name'])) ? $user['last-name'] : null,
+                    (isset($user['gravatar-url']) && is_string($user['gravatar-url'])) ? $user['gravatar-url'] : null,
+                    filter_var($user['enabled'], FILTER_VALIDATE_BOOLEAN)
                 )
             );
         }
 
-        return $this->projectCollection;
+        return $this->userCollection;
     }
 
     /**
@@ -46,7 +133,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
      * @param Project\Project &$project 
      * @return bool
      */
-    public function categories(Project\Project &$project) : bool
+    private function categories(Project\Project &$project) : bool
     {
         $url = '/' . $project->getPermalink() . '/tickets/categories';
 
@@ -77,7 +164,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
      * @param Project\Project &$project 
      * @return bool
      */
-    public function priorities(Project\Project &$project) : bool
+    private function priorities(Project\Project &$project) : bool
     {
         $url = '/' . $project->getPermalink() . '/tickets/priorities';
 
@@ -119,7 +206,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
      * @param Project\Project &$project 
      * @return bool
      */
-    public function statuses(Project\Project &$project) : bool
+    private function statuses(Project\Project &$project) : bool
     {
         $url = '/' . $project->getPermalink() . '/tickets/statuses';
 
@@ -161,7 +248,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
      * @param Project\Project &$project 
      * @return bool
      */
-    public function types(Project\Project &$project) : bool
+    private function types(Project\Project &$project) : bool
     {
         $url = '/' . $project->getPermalink() . '/tickets/types';
 
@@ -210,19 +297,9 @@ class CodebaseHQAccount extends CodebaseHQConnector
                 continue;
             }
 
-            $assignee = (!isset($ticket['assignee']) || is_array($ticket['assignee']))
-                ? null 
-                : new User\User(
-                    (int)$ticket['assignee-id'],
-                    $ticket['assignee']
-                );
+            $assignee = isset($ticket['assignee-id']) ? $this->userCollection->searchById((int)$ticket['assignee-id']) : null;
 
-            $reporter = (!isset($ticket['reporter']) || is_array($ticket['reporter']))
-                ? null 
-                : new User\User(
-                    (int)$ticket['reporter-id'],
-                    $ticket['reporter']
-                );
+            $reporter = isset($ticket['reporter-id']) ? $this->userCollection->searchById((int)$ticket['reporter-id']) : null;
 
             $category = $project->getTicketCategoryById((int)$ticket['category-id']);
 
@@ -268,44 +345,44 @@ class CodebaseHQAccount extends CodebaseHQConnector
     {
         $url = '/' . $project->getPermalink() . '/time_sessions' . $period->getPeriod();
 
-        echo $url . PHP_EOL;
-
         $timeSessions = $this->get($url);
 
         if (!isset($timeSessions['time-session'])) {
             return false;
         }
 
-        echo 'contains ' . count($timeSessions['time-session']) . ' items' . PHP_EOL;
-
         foreach($timeSessions['time-session'] as $timeSession) {
             if (!is_array($timeSession) || !isset($timeSession['id'])) {
                 continue;
             }
 
-            $user = (!isset($timeSession['user-id']) || is_array($timeSession['user-id']))
-                ? null 
-                : new User\User(
-                    (int)$timeSession['user-id'],
-                    null
-                );
+            $user = isset($timeSession['user-id']) ? $this->userCollection->searchById((int)$timeSession['user-id']) : null;
 
-            $ticketId = (!isset($timeSession['ticket-id']) || is_array($timeSession['ticket-id']))
+            $ticket = (!isset($timeSession['ticket-id']) || is_array($timeSession['ticket-id']))
                 ? null 
-                : $timeSession['ticket-id'];
+                : $project->getTickets()->searchById((int)$timeSession['ticket-id']);
 
-            $project->addTimeSession(
-                new TimeSession\TimeSession(
-                    (int)$timeSession['id'],
-                    $timeSession['summary'],
-                    (int)$timeSession['minutes'],
-                    new \DateTime($timeSession['session-date']),
-                    $user,
-                    $ticketId,
-                    new \DateTime($timeSession['updated-at']),
-                    new \DateTime($timeSession['created-at'])
-                )
+            $timeSession = new TimeSession\TimeSession(
+                (int)$timeSession['id'],
+                $project,
+                $timeSession['summary'],
+                (int)$timeSession['minutes'],
+                new \DateTime($timeSession['session-date']),
+                $user,
+                $ticket,
+                new \DateTime($timeSession['updated-at']),
+                new \DateTime($timeSession['created-at'])
             );
+
+            $project->addTimeSession($timeSession);
+
+            if (isset($ticket)) {
+                $ticket->addTimeSession($timeSession);    
+            }
+
+            if (isset($user)) {
+                $user->addTimeSession($timeSession);
+            }
         }
 
         return true;

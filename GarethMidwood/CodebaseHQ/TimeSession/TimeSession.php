@@ -2,47 +2,53 @@
 
 namespace GarethMidwood\CodebaseHQ\TimeSession;
 
+use GarethMidwood\CodebaseHQ\Project;
+use GarethMidwood\CodebaseHQ\Ticket;
 use GarethMidwood\CodebaseHQ\User;
 
 class TimeSession 
 {   
     private $id;
+    private $project;
     private $summary;
     private $minutes;
     private $sessionDate;
     private $user;
-    private $ticketId;
+    private $ticket;
     private $updatedAt;
     private $createdAt;
 
     /**
      * Constructor
      * @param int $id 
+     * @param Project\Project $project
      * @param string $summary 
      * @param int $minutes
      * @param \DateTime $sessionDate
      * @param User\User $user
-     * @param int|null $ticketId
+     * @param null|Ticket\Ticket $ticket
      * @param \DateTime $updatedAt 
      * @param \DateTime $createdAt
      * @return void
      */
     public function __construct(
         int $id,
+        Project\Project &$project,
         string $summary,
         int $minutes,
         \DateTime $sessionDate,
-        User\User $user = null,
-        int $ticketId = null,
+        User\User &$user = null,
+        Ticket\Ticket $ticket = null,
         \DateTime $updatedAt,
         \DateTime $createdAt
     ) {
         $this->id = $id;
+        $this->project = $project;
         $this->summary = $summary;
         $this->minutes = $minutes;
         $this->sessionDate = $sessionDate;
         $this->user = $user;
-        $this->ticketId = $ticketId;
+        $this->ticket = $ticket;
         $this->updatedAt = $updatedAt;
         $this->createdAt = $createdAt;
     }
@@ -53,6 +59,14 @@ class TimeSession
      */
     public function getId() {
         return $this->id;
+    }
+
+    /**
+     * Gets Time Session Project
+     * @return Project\Project
+     */
+    public function getProject() {
+        return $this->project;
     }
 
     /**
@@ -88,11 +102,11 @@ class TimeSession
     }
 
     /**
-     * Gets Time Session Ticket ID
-     * @return null|int
+     * Gets Time Session Ticket
+     * @return null|Ticket\Ticket
      */
-    public function getTicketId() {
-        return $this->ticketId;
+    public function getTicket() {
+        return $this->ticket;
     }
 
     /**

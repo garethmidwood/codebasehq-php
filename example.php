@@ -1,5 +1,7 @@
 <?php
 
+use GarethMidwood\CodebaseHQ\Project;
+
 require_once('vendor/autoload.php');
 include_once('config.example.php');
 
@@ -10,48 +12,54 @@ $codebaseHQ = new GarethMidwood\CodebaseHQ\CodebaseHQAccount(
     $apiHost
 );
 
-$projects = $codebaseHQ->projects();
 
-echo 'retrieved ' . $projects->getCount() . ' total projects' . PHP_EOL;
 
-// foreach($projects as $project) {
-//     echo $project->getName() . ' : ' . $project->getStatus() . PHP_EOL;
-// }
 
-$activeProjects = $projects->getActive();
+$projectName = 'Creode';
+$exactMatch = true;
 
-echo 'retrieved ' . $activeProjects->getCount() . ' active projects' . PHP_EOL;
 
-$searchedProjects = $activeProjects->searchByName('Creode', true);
 
-echo 'retrieved ' . $searchedProjects->getCount() . ' active searched projects' . PHP_EOL;
 
-echo '---' . PHP_EOL;
 
+
+echo '=============' . PHP_EOL;
+echo 'LOADING USERS' . PHP_EOL;
+echo '=============' . PHP_EOL;
+
+$users = $codebaseHQ->users();
+
+echo 'retrieved ' . $users->getCount() . ' total users' . PHP_EOL;
+
+
+echo PHP_EOL . PHP_EOL;
+echo '================' . PHP_EOL;
+echo 'LOADING PROJECTS' . PHP_EOL;
+echo '================' . PHP_EOL;
+
+// $projects = $codebaseHQ->projects();
+
+// echo 'retrieved ' . $projects->getCount() . ' total projects' . PHP_EOL;
+
+// $activeProjects = $projects->getActive();
+
+// echo 'retrieved ' . $activeProjects->getCount() . ' active projects' . PHP_EOL;
+
+// $searchedProjects = $activeProjects->searchByName($projectName, $exactMatch);
+
+// echo 'retrieved ' . $searchedProjects->getCount() . ' active searched projects' . PHP_EOL;
+
+$searchedProjects = [$codebaseHQ->project('creode')];
+
+
+
+echo PHP_EOL . PHP_EOL;
+echo '=====================================' . PHP_EOL;
+echo 'LOADING TICKETS FOR SEARCHED PROJECTS' . PHP_EOL;
+echo '=====================================' . PHP_EOL;
 
 foreach($searchedProjects as $project) {
-    echo 'Loading categories for "' . $project->getName() . '"' . PHP_EOL; 
-
-    $codebaseHQ->categories($project);
-
-    echo 'Loading priorities for "' . $project->getName() . '"' . PHP_EOL; 
-
-    $codebaseHQ->priorities($project);
-
-    echo 'Loading statuses for "' . $project->getName() . '"' . PHP_EOL; 
-
-    $codebaseHQ->statuses($project);
-
-    echo 'Loading types for "' . $project->getName() . '"' . PHP_EOL; 
-
-    $codebaseHQ->types($project);
-}
-
-
-
-
-// populate the tickets for each project
-foreach($searchedProjects as $project) {
+    // load tickets
     $pageNo = 1;
     $moreResultsToRetrieve = true;
 
@@ -66,30 +74,45 @@ foreach($searchedProjects as $project) {
     echo ' done' . PHP_EOL;
 }
 
-echo '---' . PHP_EOL;
+
+
+
+
+
+
+
+
+echo PHP_EOL . PHP_EOL;
+echo '==================================' . PHP_EOL;
+echo 'TICKET STATS FOR SEARCHED PROJECTS' . PHP_EOL;
+echo '==================================' . PHP_EOL;
 
 foreach($searchedProjects as $project) {
     $tickets = $project->getTickets();
 
+    echo '=== ' . $project->getName() . PHP_EOL;
+
     if ($tickets->getCount() == 0) {
-        echo $project->getName() . ' has no tickets. Have you populated them?' . PHP_EOL;
+        echo '*** no tickets found. Have you populated them? ***' . PHP_EOL;
         continue;
     }
 
-    echo $tickets->getCount() . ' tickets in ' . $project->getName() . PHP_EOL;
+    echo $tickets->getCount() . ' tickets' . PHP_EOL;
 
     $openTickets = $tickets->getOpen();
 
-    echo $openTickets->getCount() . ' open tickets in ' . $project->getName() . PHP_EOL;
+    echo $openTickets->getCount() . ' open tickets' . PHP_EOL;
 
     $closedTickets = $tickets->getClosed();
 
-    echo $closedTickets->getCount() . ' closed tickets in ' . $project->getName() . PHP_EOL;
-
-    echo '---' . PHP_EOL;
+    echo $closedTickets->getCount() . ' closed tickets' . PHP_EOL;
 }
 
 
+echo PHP_EOL . PHP_EOL;
+echo '===================================' . PHP_EOL;
+echo 'GETTING TIMES FOR SEARCHED PROJECTS' . PHP_EOL;
+echo '===================================' . PHP_EOL;
 
 // can be All|Day|Week|Month
 $weekPeriod = new GarethMidwood\CodebaseHQ\TimeSession\Period\Week;
@@ -99,4 +122,27 @@ foreach($searchedProjects as $project) {
 }
 
 
+
+
+
+echo PHP_EOL . PHP_EOL;
+echo '=======================' . PHP_EOL;
+echo 'GETTING TIMES FOR USERS' . PHP_EOL;
+echo '=======================' . PHP_EOL;
+
+
+// $users = $users->searchByUsername('gareth', false);
+$creodeUsers = $users->searchByCompany('creode', false);
+$activeCreodeUsers = $creodeUsers->getActive();
+
+
+foreach($activeCreodeUsers as $user) {
+    echo str_pad($user->getId(), 10) . 'username: ' . str_pad($user->getUsername(), 30) . ' name: ' . str_pad($user->getFirstName() . ' ' . $user->getLastName(),60) . PHP_EOL;
+
+    $times = $user->getTimeSessions();
+
+    foreach($times as $time) {
+        echo str_pad('', 10) . $time->getMinutes() . ' minutes on ticket ' . ((null !== $time->getTicket()) ? $time->getTicket()->getId() . ' (estimate ' . $time->getTicket()->getEstimate() . ')' : 'n/a') . ' on project ' . $time->getProject()->getName() . ' doing "' . $time->getSummary() . '"' . PHP_EOL; 
+    }
+}
 

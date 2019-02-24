@@ -3,6 +3,7 @@
 namespace GarethMidwood\CodebaseHQ\Ticket;
 
 use GarethMidwood\CodebaseHQ\User;
+use GarethMidwood\CodebaseHQ\TimeSession;
 
 class Ticket 
 {   
@@ -19,6 +20,10 @@ class Ticket
     private $updatedAt;
     private $createdAt;
     private $totalTimeSpent;
+    /**
+     * @var TimeSession\Collection
+     */
+    private $timeSessionCollection;
 
     /**
      * Constructor
@@ -41,12 +46,12 @@ class Ticket
         int $id,
         int $projectId,
         string $summary,
-        User\User $reporter = null,
-        User\User $assignee = null,
-        Category\Category $category = null,
-        Priority\Priority $priority = null,
-        Status\Status $status = null,
-        Type\Type $type = null,
+        User\User &$reporter = null,
+        User\User &$assignee = null,
+        Category\Category &$category = null,
+        Priority\Priority &$priority = null,
+        Status\Status &$status = null,
+        Type\Type &$type = null,
         int $estimatedTime = null,
         \DateTime $updatedAt,
         \DateTime $createdAt,
@@ -65,6 +70,8 @@ class Ticket
         $this->updatedAt = $updatedAt;
         $this->createdAt = $createdAt;
         $this->totalTimeSpent = $totalTimeSpent;
+
+        $this->timeSessionCollection = new TimeSession\Collection();
     }
 
     /**
@@ -169,5 +176,26 @@ class Ticket
      */
     public function getCreatedAt() {
         return $this->createdAt;
+    }
+
+    /**
+     * Returns time session collection
+     * @return TimeSession\Collection
+     */
+    public function getTimeSessions()
+    {
+        return $this->timeSessionCollection;
+    }
+
+    /**
+     * Adds a time session to this ticket
+     * @param TimeSession\TimeSession $timeSession
+     * @return Ticket
+     */
+    public function addTimeSession(TimeSession\TimeSession $timeSession)
+    {
+        $this->timeSessionCollection->addTimeSession($timeSession);
+
+        return $this;
     }
 }

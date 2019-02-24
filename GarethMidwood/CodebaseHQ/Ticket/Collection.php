@@ -47,7 +47,9 @@ class Collection extends BaseCollection
         $collection = new Collection();
 
         foreach($this as $ticket) {
-            if ($ticket->getStatus()->isClosed() == $returnClosed) {
+            $status = $ticket->getStatus();
+
+            if (isset($status) && $status->isClosed() == $returnClosed) {
                 $collection->addticket($ticket);
             }
         }
