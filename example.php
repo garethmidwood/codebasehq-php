@@ -1,7 +1,5 @@
 <?php
 
-use GarethMidwood\CodebaseHQ\Project;
-
 require_once('vendor/autoload.php');
 include_once('config.example.php');
 
