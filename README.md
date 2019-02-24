@@ -13,6 +13,8 @@ If you haven't already retrieved users then your ticket will have no assignee or
 
 Instructions for each of these steps can be found below.
 
+
+
 # Usage
 ## Connecting to the API
 In order to connect to and query the codebase API you need to create a CodebaseHQAccount object
@@ -25,6 +27,8 @@ $codebaseHQ = new GarethMidwood\CodebaseHQ\CodebaseHQAccount(
 );
 ```
 
+
+
 ## Retrieving All Users
 Users are pulled at the account level
 
@@ -33,6 +37,8 @@ $users = $codebaseHQ->users();
 ```
 
 This returns a `User\Collection` - searching should be done on the collection, the class has a few helper methods for this
+
+
 
 ## Retrieving Projects
 Projects can be pulled as a whole for the account, or individually by permalink.
@@ -56,6 +62,8 @@ $project = $codebaseHQ->project('project-permalink');
 
 This returns a `Project\Project` - not a collection
 
+
+
 ## Retrieving Tickets for a Project
 Tickets can only be retrieved if you have a `Project\Project` object. 
 
@@ -67,6 +75,7 @@ $project->getTickets();
 
 The tickets method returns a boolean indicating whether there are further results (as the results are paginated).
 The tickets themselves are added to a `Ticket\Collection` in the project. As always, searching should be done on the collection, the class has a few helper methods for this
+
 
 ### Pagination
 Tickets are paginated, with 20 per page. You can write a simple loop to pull all tickets for the project
@@ -80,6 +89,8 @@ while ($moreResultsToRetrieve) {
     $pageNo++;
 }
 ```
+
+
 
 ## Retrieving Time Sessions for a Project
 Time Sessions can only be retrieved if you have a `Project\Project` object.
@@ -95,11 +106,14 @@ $codebaseHQ->times($project, $period);
 Time sessions will be associated with the project, the ticket and the user if you have populated those collections.
 
 ```php
+// times for the project
+$project->getTimeSessions();
+
 // times associated to a user
 $user->getTimeSessions();
 
 // times associated to a ticket
-
+$ticket->getTimeSessions();
 ```
 
 
