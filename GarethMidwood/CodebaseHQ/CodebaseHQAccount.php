@@ -80,8 +80,6 @@ class CodebaseHQAccount extends CodebaseHQConnector
     {
         $projectData = $this->get('/' . $permalink);
 
-        file_put_contents('proj.txt', print_r($projectData, true));
-
         $project = new Project\Project(
             (int)$projectData['project-id'],
             $projectData['name'],
