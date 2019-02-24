@@ -38,17 +38,15 @@ echo 'LOADING PROJECTS' . PHP_EOL;
 echo '================' . PHP_EOL;
 
 // $projects = $codebaseHQ->projects();
-
 // echo 'retrieved ' . $projects->getCount() . ' total projects' . PHP_EOL;
-
 // $activeProjects = $projects->getActive();
-
 // echo 'retrieved ' . $activeProjects->getCount() . ' active projects' . PHP_EOL;
-
 // $searchedProjects = $activeProjects->searchByName($projectName, $exactMatch);
-
 // echo 'retrieved ' . $searchedProjects->getCount() . ' active searched projects' . PHP_EOL;
 
+// or alternatively, to just pull one project
+
+echo 'Pulling in creode project only' . PHP_EOL;
 $searchedProjects = [$codebaseHQ->project('creode')];
 
 
