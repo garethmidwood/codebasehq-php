@@ -142,3 +142,29 @@ foreach($activeCreodeUsers as $user) {
     }
 }
 
+
+
+
+echo PHP_EOL . PHP_EOL;
+echo '=========================' . PHP_EOL;
+echo 'GETTING TIMES FOR TICKETS' . PHP_EOL;
+echo '=========================' . PHP_EOL;
+
+foreach($searchedProjects as $project) {
+    $tickets = $project->getTickets();
+
+    echo '=== ' . $project->getName() . PHP_EOL;
+
+    if ($tickets->getCount() == 0) {
+        echo '*** no tickets found. Have you populated them? ***' . PHP_EOL;
+        continue;
+    }
+
+    $ticket = $tickets->searchById(517);
+
+    $times = $ticket->getTimeSessions();
+
+    foreach($times as $time) {
+        echo $time->getUser()->getUsername() . ' spent ' . $time->getMinutes() . ' minutes on ticket ' . ((null !== $time->getTicket()) ? $time->getTicket()->getId() . ' (estimate ' . $time->getTicket()->getEstimate() . ')' : 'n/a') . ' on project ' . $time->getProject()->getName() . ' doing "' . $time->getSummary() . '"' . PHP_EOL; 
+    }
+}
