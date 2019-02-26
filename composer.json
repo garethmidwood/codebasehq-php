@@ -2,6 +2,7 @@
     "name": "garethmidwood/codebasehq-php",
     "description": "A PHP library for the CodebaseHQ API",
     "type": "library",
+    "version": "1.0.0",
     "authors": [
         {
             "name": "Gareth Midwood",
