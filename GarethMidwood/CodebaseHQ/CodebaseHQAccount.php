@@ -60,11 +60,6 @@ class CodebaseHQAccount extends CodebaseHQConnector
                 (int)$projectData['closed-tickets']
             );
 
-            $this->categories($project);
-            $this->priorities($project);
-            $this->statuses($project);
-            $this->types($project);
-
             $this->projectCollection->addProject($project);
         }
 
@@ -131,7 +126,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
      * @param Project\Project &$project 
      * @return bool
      */
-    private function categories(Project\Project &$project) : bool
+    public function categories(Project\Project &$project) : bool
     {
         $url = '/' . $project->getPermalink() . '/tickets/categories';
 
@@ -162,7 +157,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
      * @param Project\Project &$project 
      * @return bool
      */
-    private function priorities(Project\Project &$project) : bool
+    public function priorities(Project\Project &$project) : bool
     {
         $url = '/' . $project->getPermalink() . '/tickets/priorities';
 
@@ -204,7 +199,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
      * @param Project\Project &$project 
      * @return bool
      */
-    private function statuses(Project\Project &$project) : bool
+    public function statuses(Project\Project &$project) : bool
     {
         $url = '/' . $project->getPermalink() . '/tickets/statuses';
 
@@ -246,7 +241,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
      * @param Project\Project &$project 
      * @return bool
      */
-    private function types(Project\Project &$project) : bool
+    public function types(Project\Project &$project) : bool
     {
         $url = '/' . $project->getPermalink() . '/tickets/types';
 
