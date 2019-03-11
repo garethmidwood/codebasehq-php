@@ -42,7 +42,6 @@ This returns a `User\Collection` - searching should be done on the collection, t
 
 ## Retrieving Projects
 Projects can be pulled as a whole for the account, or individually by permalink.
-Projects are populated with all of their categories, priorities, statuses and types.
 
 ### Retrieving All Projects
 Projects are also pulled at the account level
@@ -61,6 +60,16 @@ $project = $codebaseHQ->project('project-permalink');
 ```
 
 This returns a `Project\Project` - not a collection
+
+## Populating Project Details 
+Projects can be populated with all of their categories, priorities, statuses and types.
+
+```php
+$codebaseHQ->categories($project);
+$codebaseHQ->priorities($project);
+$codebaseHQ->statuses($project);
+$codebaseHQ->types($project);
+```
 
 
 
