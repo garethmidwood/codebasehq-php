@@ -113,7 +113,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
                     (isset($user['first-name']) && is_string($user['first-name'])) ? $user['first-name'] : null,
                     (isset($user['last-name']) && is_string($user['last-name'])) ? $user['last-name'] : null,
                     (isset($user['gravatar-url']) && is_string($user['gravatar-url'])) ? $user['gravatar-url'] : null,
-                    filter_var($user['enabled'], FILTER_VALIDATE_BOOLEAN)
+                    (filter_var($user['enabled'], FILTER_VALIDATE_BOOLEAN) ? true : false)
                 )
             );
         }
@@ -224,7 +224,7 @@ class CodebaseHQAccount extends CodebaseHQConnector
                         ? $status['colour']
                         : null,
                     (isset($status['treat-as-closed']) && is_string($status['treat-as-closed']))
-                        ? filter_var($status['treat-as-closed'], FILTER_VALIDATE_BOOLEAN)
+                        ? (filter_var($status['treat-as-closed'], FILTER_VALIDATE_BOOLEAN) ? true : false)
                         : null,
                     (isset($status['order']) && is_string($status['order']))
                         ? (int)$status['order']
